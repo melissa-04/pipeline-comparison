@@ -1,0 +1,12 @@
+============================================================
+KALITE KONTROL (QC) OZETI
+============================================================
+
+Ornek        | Ham Read  | Temiz Read | Korunan | Q30   | GC    | Dup
+---------------------------------------------------------------------------
+Tumor        | 53.5M     | 53.0M      | %99.0   | %95.7 | %50.0 | %19.6
+Normal       | 69.8M     | 69.1M      | %99.0   | %95.7 | %49.5 | %19.2
+
+YORUM: Her iki ornekte de veri kalitesi cok yuksek.
+Q30 > %95, read kaybi < %1, duplikasyon < %20.
+Veri analiz icin hazir.
