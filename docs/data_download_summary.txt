@@ -1,0 +1,25 @@
+============================================================
+VERI INDIRME OZETI
+Tarih: 2026-02-14 22:58
+Runtime: H100 GPU
+============================================================
+
+--- FASTQ ---
+  SRR7890850_1.fastq.gz: 1.80 GB [TUMOR]
+  SRR7890850_2.fastq.gz: 1.89 GB [TUMOR]
+  SRR7890851_1.fastq.gz: 2.37 GB [NORMAL]
+  SRR7890851_2.fastq.gz: 2.47 GB [NORMAL]
+
+--- REFERANS + KNOWN SITES ---
+  Homo_sapiens_assembly38.dict: 26.7 KB
+  Homo_sapiens_assembly38.fasta: 2.93 GB
+  Homo_sapiens_assembly38.fasta.fai: 7.6 KB
+  Mills_and_1000G_gold_standard.indels.hg38.vcf.gz: 19.7 MB
+  Mills_and_1000G_gold_standard.indels.hg38.vcf.gz.tbi: 1.4 MB
+  dbsnp_146.hg38.vcf.gz: 1.45 GB
+  dbsnp_146.hg38.vcf.gz.tbi: 2.2 MB
+
+--- GROUND TRUTH ---
+SNV sayisi: 39,648
+  high-confidence_sSNV_in_HC_regions_v1.2.vcf.gz: 4.8 MB
+  high-confidence_sSNV_in_HC_regions_v1.2.vcf.gz.tbi: 345.6 KB
