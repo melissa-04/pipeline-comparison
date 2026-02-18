@@ -1,0 +1,74 @@
+{
+  "bwamem2_mutect2": {
+    "mapper": "BWA-MEM2",
+    "caller": "Mutect2",
+    "total_calls": 3094,
+    "TP": 1132,
+    "FP": 1962,
+    "FN": 38428,
+    "precision": 0.3658694246929541,
+    "recall": 0.028614762386248736,
+    "f1": 0.053078257607727296,
+    "jaccard": 0.02726265594142864
+  },
+  "bwamem2_varscan2": {
+    "mapper": "BWA-MEM2",
+    "caller": "VarScan2",
+    "total_calls": 3215,
+    "TP": 897,
+    "FP": 2318,
+    "FN": 38663,
+    "precision": 0.27900466562986004,
+    "recall": 0.022674418604651164,
+    "f1": 0.04194038573933373,
+    "jaccard": 0.021419361001002914
+  },
+  "bwamem2_somaticsniper": {
+    "mapper": "BWA-MEM2",
+    "caller": "SomaticSniper",
+    "total_calls": 80042,
+    "TP": 1399,
+    "FP": 78643,
+    "FN": 38161,
+    "precision": 0.01747832387996302,
+    "recall": 0.03536400404448938,
+    "f1": 0.023394257621110016,
+    "jaccard": 0.011835571009196045
+  },
+  "bowtie2_mutect2": {
+    "mapper": "Bowtie2",
+    "caller": "Mutect2",
+    "total_calls": 2708,
+    "TP": 1075,
+    "FP": 1633,
+    "FN": 38485,
+    "precision": 0.39697193500738553,
+    "recall": 0.02717391304347826,
+    "f1": 0.05086590328380808,
+    "jaccard": 0.026096666909426358
+  },
+  "bowtie2_varscan2": {
+    "mapper": "Bowtie2",
+    "caller": "VarScan2",
+    "total_calls": 2986,
+    "TP": 886,
+    "FP": 2100,
+    "FN": 38674,
+    "precision": 0.29671801741460146,
+    "recall": 0.022396359959555107,
+    "f1": 0.04164903868753819,
+    "jaccard": 0.02126740278444551
+  },
+  "bowtie2_somaticsniper": {
+    "mapper": "Bowtie2",
+    "caller": "SomaticSniper",
+    "total_calls": 64301,
+    "TP": 1350,
+    "FP": 62951,
+    "FN": 38210,
+    "precision": 0.020995007853688123,
+    "recall": 0.034125379170879676,
+    "f1": 0.025996283494285632,
+    "jaccard": 0.013169318414609164
+  }
+}

@@ -1,0 +1,18 @@
+======================================================================
+COMPARATIVE ANALYSIS OF VARIANT CALLING PIPELINES
+IN BREAST CANCER SOMATIC MUTATION DETECTION
+======================================================================
+
+Dataset: SEQC2 HCC1395 WES (Triple-Negative Breast Cancer)
+Ground Truth: 39,648 high-confidence somatic SNVs (v1.2)
+
+Pipeline                         Calls      TP      FP      FN    Prec     Rec      F1
+----------------------------------------------------------------------
+Bowtie2 + Mutect2                 2708    1075    1633   38485  0.3970  0.0272  0.0509
+Bowtie2 + SomaticSniper          64301    1350   62951   38210  0.0210  0.0341  0.0260
+Bowtie2 + VarScan2                2986     886    2100   38674  0.2967  0.0224  0.0416
+BWA-MEM2 + Mutect2                3094    1132    1962   38428  0.3659  0.0286  0.0531
+BWA-MEM2 + SomaticSniper         80042    1399   78643   38161  0.0175  0.0354  0.0234
+BWA-MEM2 + VarScan2               3215     897    2318   38663  0.2790  0.0227  0.0419
+
+Best F1: BWA-MEM2 + Mutect2 (0.0531)
