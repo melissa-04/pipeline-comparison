@@ -1,115 +1,96 @@
-# Comparative Analysis of Variant Calling Pipelines in Breast Cancer
+# Comparing Variant Calling Pipelines in Breast Cancer
 
-## About This Project
+## What is this project?
 
-This project compares **6 different NGS pipelines** for detecting somatic mutations in breast cancer. I used the SEQC2 benchmark dataset (HCC1395 cell line) and measured each pipeline's accuracy against a validated ground truth.
+I compared 6 different bioinformatics pipelines to find somatic mutations in breast cancer data. The goal was to see how the choice of tools (mapper + variant caller) affects the results. I used the SEQC2 benchmark dataset which has a validated list of real mutations, so I could measure how well each pipeline performs.
 
-**Why?** Different bioinformatics tools can give different results from the same data. Choosing the right pipeline matters for clinical decisions. This project explores how mapper and variant caller choices affect mutation detection.
+This project was inspired by Ertürk et al. (2025), a paper from Prof. Baysan's lab at ITU, where students ran 12 pipelines on the same dataset and found surprising differences in results depending on the computational environment.
 
 ## Dataset
 
-| Sample | Description | Accession |
-|--------|-------------|-----------|
-| Tumor | HCC1395 (Triple-negative breast cancer) | SRR7890850 |
-| Normal | HCC1395BL (Matched normal B-lymphoblast) | SRR7890851 |
+I used the SEQC2 HCC1395 dataset. HCC1395 is a triple-negative breast cancer cell line. There are two samples:
 
-- **Sequencing:** Whole Exome Sequencing (WES), Illumina HiSeq 4000, paired-end 150bp
-- **Reference genome:** GRCh38 (hg38)
-- **Ground truth:** SEQC2 high-confidence somatic SNVs (39,648 variants)
+- **Tumor (SRR7890850):** DNA from the cancer cells. Contains both normal and cancer-specific mutations mixed together.
+- **Normal (SRR7890851):** DNA from healthy cells of the same patient. Only has inherited (germline) mutations.
 
-## Pipelines Tested
+By comparing tumor vs normal, we can find mutations that exist only in the tumor. These are called somatic mutations.
 
-| # | Mapper | Variant Caller |
-|---|--------|---------------|
-| 1 | BWA-MEM2 | Mutect2 (GATK) |
-| 2 | BWA-MEM2 | VarScan2 |
-| 3 | BWA-MEM2 | SomaticSniper |
-| 4 | Bowtie2 | Mutect2 (GATK) |
-| 5 | Bowtie2 | VarScan2 |
-| 6 | Bowtie2 | SomaticSniper |
+The sequencing type is Whole Exome Sequencing (WES), which means only the protein-coding regions (~1-2% of the genome) were sequenced. The reference genome is GRCh38 (hg38).
 
-## Pipeline Workflow
+## Pipelines I tested
 
-```
-FASTQ (raw reads)
-  → fastp (quality trimming + adapter removal)
-    → BWA-MEM2 / Bowtie2 (alignment to reference)
-      → SAM/BAM (sorted + indexed)
-        → MarkDuplicates (GATK)
-          → BQSR (Base Quality Score Recalibration)
-            → Mutect2 / VarScan2 / SomaticSniper (variant calling)
-              → VCF (filtered somatic SNVs)
-                → Comparison with ground truth
-```
+I used 2 mappers and 3 variant callers, making 6 combinations:
 
-## Evaluation Metrics
+**Mappers (alignment tools):**
+- BWA-MEM2 — fast, uses Burrows-Wheeler Transform
+- Bowtie2 — uses FM-index, different algorithm
 
-- **Precision** — How many of the called variants are real?
-- **Recall** — How many of the real variants were found?
-- **F1-Score** — Balance between precision and recall
-- **Jaccard Index** — Overall overlap with ground truth
+**Variant Callers (mutation detection tools):**
+- Mutect2 (GATK) — Bayesian model, considered the gold standard for somatic calling
+- VarScan2 — uses Fisher's exact test on pileup data
+- SomaticSniper — calculates genotype likelihoods
 
+So the 6 pipelines are: BWA-MEM2+Mutect2, BWA-MEM2+VarScan2, BWA-MEM2+SomaticSniper, Bowtie2+Mutect2, Bowtie2+VarScan2, Bowtie2+SomaticSniper.
 
+## How the pipeline works
 
-## Tools Used
+Each pipeline follows the same steps:
 
-| Tool | Version | Purpose |
-|------|---------|---------|
-| fastp | 1.1.0 | Read trimming and quality filtering |
-| BWA-MEM2 | latest | Read alignment (mapper 1) |
-| Bowtie2 | 2.5.4 | Read alignment (mapper 2) |
-| GATK | 4.6.2.0 | MarkDuplicates, BQSR, Mutect2 |
-| VarScan | 2.4.6 | Somatic variant calling |
-| SomaticSniper | latest | Somatic variant calling |
-| samtools | 1.23 | BAM processing |
-| bcftools | 1.23 | VCF comparison and filtering |
-| FastQC | 0.12.1 | Quality reports |
-| MultiQC | 1.33 | Aggregated QC reports |
-
-## How to Run
-
-All analysis was done on **Google Colab**. Open the notebooks in order (01 → 04) and follow the instructions inside each one.
-
-**Requirements:**
-- Google Colab (Pro recommended for faster runtime)
-- Google Drive for storing results
-- ~30 GB free disk space on Colab
-
+1. **Quality control:** fastp removes low-quality reads and adapter sequences
+2. **Mapping:** BWA-MEM2 or Bowtie2 aligns reads to the reference genome, producing BAM files
+3. **Post-processing:** MarkDuplicates removes PCR duplicates, BQSR corrects base quality scores
+4. **Variant calling:** Mutect2, VarScan2, or SomaticSniper detects somatic mutations
+5. **Filtering:** Only high-confidence SNVs (single nucleotide variants) are kept
+6. **Comparison:** Each pipeline's results are compared against the SEQC2 ground truth
+7. 
 ## Results
 
-### Performance Summary
+The ground truth from SEQC2 contains 39,648 validated somatic SNVs.
 
- Pipeline  Calls  TP  FP  FN  Precision  Recall  F1 
-----------------:---:---:---:----------:-------:---:
- BWA-MEM2 + Mutect2 | 3,094 | 1,132 | 1,962 | 38,428 | 0.3659 | 0.0286 | 0.0531 |
- BWA-MEM2 + VarScan2 | 3,215 | 897 | 2,318 | 38,663 | 0.2790 | 0.0227 | 0.0419 |
- BWA-MEM2 + SomaticSniper | 80,042 | 1,399 | 78,643 | 38,161 | 0.0175 | 0.0354 | 0.0234 |
- Bowtie2 + Mutect2 | 2,708 | 1,075 | 1,633 | 38,485 | 0.3970 | 0.0272 | 0.0509 |
-Bowtie2 + VarScan2 | 2,986 | 886 | 2,100 | 38,674 | 0.2967 | 0.0224 | 0.0416 |
- Bowtie2 + SomaticSniper | 64,301 | 1,350 | 62,951 | 38,210 | 0.0210 | 0.0341 | 0.0260 |
+Here is what each pipeline found:
 
-**Best F1-Score:** BWA-MEM2 + Mutect2 (0.0531)
+- **BWA-MEM2 + Mutect2:** 3,094 calls, 1,132 true positives, precision 0.37, recall 0.03, F1 0.053
+- **BWA-MEM2 + VarScan2:** 3,215 calls, 897 true positives, precision 0.28, recall 0.02, F1 0.042
+- **BWA-MEM2 + SomaticSniper:** 80,042 calls, 1,399 true positives, precision 0.02, recall 0.04, F1 0.023
+- **Bowtie2 + Mutect2:** 2,708 calls, 1,075 true positives, precision 0.40, recall 0.03, F1 0.051
+- **Bowtie2 + VarScan2:** 2,986 calls, 886 true positives, precision 0.30, recall 0.02, F1 0.042
+- **Bowtie2 + SomaticSniper:** 64,301 calls, 1,350 true positives, precision 0.02, recall 0.03, F1 0.026
 
-### Key Findings
+Best F1-score: BWA-MEM2 + Mutect2 (0.053)
 
-1. **Mutect2 had the highest precision** across both mappers (~37-40%), meaning it makes fewer false calls compared to VarScan2 and SomaticSniper.
+## What I observed
 
-2. **SomaticSniper produced the most calls** (64K-80K) with very low precision (~2%), indicating many false positives. However, it achieved the highest recall (~3.4-3.5%).
+**Mutect2 has the best precision.** It makes fewer false calls (~37-40% of its calls are real). This makes sense because Mutect2 uses a sophisticated Bayesian model to distinguish real mutations from sequencing errors.
 
-3. **BWA-MEM2 slightly outperformed Bowtie2** — BWA-MEM2 + Mutect2 had both higher TP count (1,132 vs 1,075) and better F1-score (0.0531 vs 0.0509).
+**SomaticSniper produces way too many calls.** It found 64,000-80,000 variants while the others found around 3,000. Most of these are false positives (precision only ~2%). However, it catches slightly more real mutations than the others.
 
-4. **VarScan2 was in the middle** — moderate precision (~28-30%) but lowest recall (~2.2%).
+**The mapper choice does not make a big difference.** BWA-MEM2 is slightly better than Bowtie2, but the difference is small. This is consistent with the findings in Ertürk et al. (2025), where they also found that the mapper has minimal impact compared to the variant caller.
 
-### Important Note on Low Recall
+**VarScan2 is in the middle.** Moderate precision, lowest recall.
 
-The recall values are low (~2-3%) because the **ground truth contains 39,648 SNVs from Whole Genome Sequencing (WGS)**, but our data is **Whole Exome Sequencing (WES)** which only covers ~1-2% of the genome (protein-coding regions). Most ground truth variants fall outside exome capture regions, making them impossible to detect with WES data. This is expected and does not indicate poor pipeline performance. The relative ranking between pipelines remains valid for comparison purposes.
+## Why is the recall so low?
+
+This is important to explain. My recall values are around 2-3%, which looks very low. But there is a reason for this. The ground truth contains 39,648 SNVs from **Whole Genome Sequencing (WGS)**. This means it includes mutations from everywhere in the genome. But my data is **Whole Exome Sequencing (WES)**, which only covers about 1-2% of the genome (the protein-coding exons). So most of the 39,648 ground truth mutations are in regions that my WES data simply cannot see. These all count as false negatives, which makes recall very low. In the Baysan et al. (2025) paper, they applied exome filtering to the ground truth, reducing it from 39,648 to 1,161 SNPs (only the ones inside exome regions). With this filtering, their recall values were around 50-70%. I did not apply this exome filtering step, which is why my recall numbers are not directly comparable to the paper. The pipeline ranking and relative comparison between tools is still valid, but the absolute recall and F1 values would be much higher with proper exome filtering. This is something I plan to fix.
+## Tools and versions
+
+- fastp 1.1.0 (read trimming)
+- BWA-MEM2 (read alignment)
+- Bowtie2 2.5.4 (read alignment)
+- GATK 4.6.2.0 (MarkDuplicates, BQSR, Mutect2)
+- VarScan 2.4.6 (variant calling)
+- SomaticSniper (variant calling)
+- samtools 1.23 (BAM processing)
+- bcftools 1.23 (VCF filtering and comparison)
+- FastQC 0.12.1 and MultiQC 1.33 (quality reports)
+
+Everything was installed via Conda (Miniforge) on Google Colab.
 
 
-## Author
 
-Undergraduate student at Istanbul Technical University (ITU), Department of Molecular Biology and Genetics.
-Melisa Agri
+## Reference
 
-## License
+https://doi.org/10.1371/journal.pcbi.1013552
 
-This project is for educational purposes.
+## About me
+
+I am an undergraduate student at Istanbul Technical University, Department of Molecular Biology and Genetics (3rd year). This project was done independently to learn NGS analysis and to understand how different pipeline choices affect somatic mutation detection. Melisa Agri
