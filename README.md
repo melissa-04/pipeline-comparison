@@ -4,7 +4,6 @@
 
 I compared 6 different bioinformatics pipelines to find somatic mutations in breast cancer data. The goal was to see how the choice of tools (mapper + variant caller) affects the results. I used the SEQC2 benchmark dataset which has a validated list of real mutations, so I could measure how well each pipeline performs.
 
-This project was inspired by Ertürk et al. (2025), a paper from Prof. Baysan's lab at ITU, where students ran 12 pipelines on the same dataset and found surprising differences in results depending on the computational environment.
 
 ## Dataset
 
